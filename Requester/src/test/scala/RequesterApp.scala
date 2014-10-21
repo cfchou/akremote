@@ -1,6 +1,5 @@
-package cf
-
-import akka.actor.{Props, ActorSystem}
+import akka.actor.{ActorSystem, Props}
+import cf.RequestReporter
 import com.typesafe.config.ConfigFactory
 
 object RequesterApp extends App {
