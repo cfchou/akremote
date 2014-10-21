@@ -3,7 +3,7 @@ import cf.Requester
 import akka.pattern.ask
 import akka.util.Timeout
 
-import scala.concurrent.{Await, Future }
+import scala.concurrent.{Promise, Await, Future}
 import scala.util.Try
 import scala.concurrent.duration._
 
@@ -30,13 +30,24 @@ object RequestConsole extends App {
   val requester = system.actorOf(Props[Requester], "requester")
   val req = (requester ? "to requester").mapTo[String]
 
-  Try(Await.result(rep, 5.seconds)).recover {
+  Try(Await.result(rep, askDura)).recover {
     case _ => "!!!!!!! no response from the reporter"
   }.map(println _)
 
   Try(Await.result(req, askDura)).recover {
     case _ => "!!!!!!! no response from the requester"
   }.map(println _)
+
+  println("------------------")
+  val never = Promise[Unit].future
+
+  Try(Await.result(never.mapTo[String], 10.seconds))
+  println("Shutdown!")
+  /*
+  println(Try(Await.result(never.mapTo[String], 10.seconds)).
+    getOrElse("Shutdown!"))
+    */
+  println("------------------")
 
   system.shutdown()
 }

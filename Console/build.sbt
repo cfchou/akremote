@@ -19,4 +19,3 @@ libraryDependencies ++= {
   )
 }
 
-Revolver.settings
