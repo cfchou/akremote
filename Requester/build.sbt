@@ -1,3 +1,9 @@
+import AssemblyKeys._
+
+assemblySettings
+
+jarName in assembly := "requester.jar"
+
 name := "requester"
 
 organization  := "feng"
