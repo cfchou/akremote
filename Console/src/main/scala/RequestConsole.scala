@@ -35,22 +35,22 @@ object RequestConsole extends App {
 
   Try(Await.result(rep, askDura)).recover {
     case _ => "!!!!!!! no response from the reporter"
-  }.map(println _)
+  }.map(s => log.error(s))
 
   Try(Await.result(req, askDura)).recover {
     case _ => "!!!!!!! no response from the requester"
-  }.map(println _)
+  }.map(s => log.error(s))
 
-  println("------------------")
+  log.info("------------------")
   val never = Promise[Unit].future
 
   Try(Await.result(never.mapTo[String], 10.seconds))
-  println("Shutdown!")
+  log.info("Shutdown!")
   /*
-  println(Try(Await.result(never.mapTo[String], 10.seconds)).
+  log.info(Try(Await.result(never.mapTo[String], 10.seconds)).
     getOrElse("Shutdown!"))
     */
-  println("------------------")
+  log.info("------------------")
 
   system.shutdown()
 }
