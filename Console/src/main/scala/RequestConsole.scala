@@ -7,11 +7,14 @@ import scala.concurrent.{Promise, Await, Future}
 import scala.util.Try
 import scala.concurrent.duration._
 
+import grizzled.slf4j.Logger
+
 object RequestConsole extends App {
+  val log = Logger[this.type]
   if (args.length > 0) {
-    println("hi, args(0):" ++ args(0))
+    log.info("hi, args(0):" ++ args(0))
   } else {
-    println("hello")
+    log.info("hello")
   }
 
   // local system
