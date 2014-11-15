@@ -14,7 +14,8 @@ object KProducer {
   case object Yo
 }
 
-class KProducer(val conf: KProducerConf) extends Actor with ActorLogging {
+class KProducer(val conf: KProducerConf, val topic: String) extends Actor
+with ActorLogging {
 
   import cf.KProducer._
 
