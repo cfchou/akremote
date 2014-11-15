@@ -3,7 +3,7 @@ package cf
 import java.util.Properties
 
 import akka.actor.{Actor, ActorLogging}
-import kafka.producer.{Producer, ProducerConfig}
+import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -12,6 +12,7 @@ import scala.util.{Failure, Success, Try}
 object KProducer {
   case object Tick
   case object Yo
+  case class KeyedMsg(key: Option[String], msg: String)
 }
 
 class KProducer(val conf: KProducerConf, val topic: String) extends Actor
@@ -30,6 +31,7 @@ with ActorLogging {
       }
       val config: ProducerConfig = new ProducerConfig(props);
       Try {
+        // a keyed message(key:String, value:String) producer
         new Producer[String, String](config)
       } match {
         case Success(v) => v
@@ -49,6 +51,13 @@ with ActorLogging {
   override def receive: Receive = {
     case Tick =>
       log.info("Tick------------------")
+      sender ! Yo
+    case KeyedMsg(key, v) =>
+      key.fold {
+        producer.send(new KeyedMessage(topic, v))
+      } { k =>
+        producer.send(new KeyedMessage(topic, k, v))
+      }
       sender ! Yo
     case _ =>
       log.info("Unknown ------------------")

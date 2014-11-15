@@ -29,6 +29,9 @@ class KProducerSpec extends
   val replicationFactor = 2 // <= number of kafka brokers
   val topicConfig = new Properties
 
+  val kp = TestActorRef[KProducer](Props(classOf[KProducer],
+    new KProducerConf {}, topic))
+
   override protected def beforeAll(): Unit = {
     super.beforeAll()
 
@@ -37,24 +40,30 @@ class KProducerSpec extends
     log.debug(s"create topic: $topic")
     AdminUtils.createTopic(zkClient, topic, nPartitions, replicationFactor,
       topicConfig)
+
   }
 
   override protected def afterAll(): Unit = {
-    log.debug("Tests done: delete topics, shutdown.")
-    zkClient.deleteRecursive(ZkUtils.getTopicPath(topic))
+    log.debug("Tests done: delete topics(messages retained), shutdown.")
+    // NOTE leave the topic for latter manual examination
+    //zkClient.deleteRecursive(ZkUtils.getTopicPath(topic))
     system.shutdown()
   }
 
   "KProducer" should {
-    "react to Tick " in {
-      val p = TestActorRef[KProducer](Props(classOf[KProducer],
-        new KProducerConf {}, topic))
+    "react to Tick" in {
 
       // NOTE if ImplictSender isn't mixed in, need to explicitly use testActor
-      //p.tell(KProducer.Tick, testActor)
+      //kp.tell(KProducer.Tick, testActor)
 
-      p ! KProducer.Tick
+      kp ! KProducer.Tick
       expectMsg(KProducer.Yo)
     }
+
+    "send a key and un-keyed message, respectively" in {
+      kp ! KProducer.KeyedMsg(None, "only value123")
+      kp ! KProducer.KeyedMsg(Some("key123"), "and value456")
+    }
   }
+
 }
